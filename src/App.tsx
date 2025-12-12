@@ -1,6 +1,7 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 
 function App() {
+  // 样式常量
   const COLORS = {
     primary: "#c54b8c",
     secondary: "#e91e63",
@@ -9,8 +10,10 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  // 支付函数
   const payWithUSDT = async (amount: number, productName: string) => {
     alert(`准备支付 ${amount} USDT 购买 ${productName}`);
+    // 这里可以替换为真实的支付逻辑
   };
 
   const handleBuy = async (amount: number, productName: string) => {
@@ -41,6 +44,7 @@ function App() {
         Welcome to My Store
       </h1>
 
+      {/* 商品卡片 */}
       <div style={{
         background: "white",
         borderRadius: "16px",
@@ -53,12 +57,13 @@ function App() {
           Marimekko Women's & Children's Cotton Socks
         </h3>
         <p style={{ color: COLORS.textDark, fontSize: "15px", lineHeight: "1.5", margin: "10px 0" }}>
-          Sizes 36-42  Soft & breathable cotton<br />
+          Sizes 36-42 · Soft & breathable cotton<br />
           10 pairs or more = FREE worldwide shipping ♡
         </p>
 
+        {/* 注意：使用相对路径，确保GitHub Pages能正确加载 */}
         <img
-          src="/image_editor_1760666290001.jpg"
+          src="image_editor_1760666290001.jpg"
           alt="Marimekko Cotton Socks"
           style={{ width: "100%", borderRadius: "12px" }}
           loading="lazy"
@@ -68,6 +73,7 @@ function App() {
           $8 per pair
         </p>
 
+        {/* 购买 1 双 */}
         <button
           onClick={() => handleBuy(8, "Marimekko Cotton Socks (1 pair)")}
           disabled={isLoading}
@@ -85,11 +91,12 @@ function App() {
             opacity: isLoading ? 0.7 : 1,
           }}
         >
-          {isLoading ? "Processing..." : "Buy 1 pair  8 USDT"}
+          {isLoading ? "Processing..." : "Buy 1 pair – 8 USDT"}
         </button>
 
+        {/* 购买 10 双 */}
         <button
-          onClick={() => handleBuy(80, "Marimekko Cotton Socks 10 (Free Shipping)")}
+          onClick={() => handleBuy(80, "Marimekko Cotton Socks ×10 (Free Shipping)")}
           disabled={isLoading}
           style={{
             width: "100%",
@@ -104,7 +111,7 @@ function App() {
             opacity: isLoading ? 0.7 : 1,
           }}
         >
-          {isLoading ? "Processing..." : "Buy 10 pairs  80 USDT (Free Shipping Worldwide)"}
+          {isLoading ? "Processing..." : "Buy 10 pairs – 80 USDT (Free Shipping Worldwide)"}
         </button>
       </div>
     </div>
