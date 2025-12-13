@@ -4,6 +4,7 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+base: '/cozy-luxe-vault/',
   plugins: [react(), nodePolyfills()],
   define: {
     __APP_VERSION__: JSON.stringify('v1.0.0'),
