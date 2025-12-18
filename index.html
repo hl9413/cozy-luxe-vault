@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trendy Street - Product Management</title>
+    <title>Cozy Luxe Vault - 产品管理系统</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #000000;
-            --secondary-color: #ff6b6b;
-            --accent-color: #0066cc;
-            --light-bg: #f5f5f7;
-            --dark-text: #1d1d1f;
-            --light-text: #666666;
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --accent-color: #3498db;
+            --light-bg: #ecf0f1;
+            --dark-text: #2c3e50;
+            --light-text: #7f8c8d;
             --card-bg: #ffffff;
         }
         
@@ -20,26 +20,20 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
         }
         
-        body {
-            background-color: var(--light-bg);
-            color: var(--dark-text);
-            line-height: 1.6;
+        .容器 {
+            最大宽度: 1400像素;
+            边距: 0 自动;
+            内边距: 20像素;
         }
         
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        /* Header Styles */
+        /* 头部样式 */
         header {
-            text-align: center;
+            文本对齐: 居中;
             padding: 40px 0;
-            background: linear-gradient(135deg, var(--primary-color) 0%, #333333 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
             color: white;
             border-radius: 15px;
             margin-bottom: 40px;
@@ -54,7 +48,7 @@
             letter-spacing: 3px;
             margin-bottom: 10px;
             text-transform: uppercase;
-            background: linear-gradient(to right, #fff, var(--secondary-color));
+            background: linear-gradient(to right, #fff, #f39c12);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -68,11 +62,11 @@
             margin: 0 auto;
         }
         
-        .admin-badge {
+        .language-badge {
             position: absolute;
             top: 20px;
             right: 20px;
-            background-color: var(--secondary-color);
+            background-color: var(--accent-color);
             color: white;
             padding: 8px 15px;
             border-radius: 20px;
@@ -103,6 +97,9 @@
             border-bottom: 2px solid var(--secondary-color);
             padding-bottom: 10px;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .upload-form {
@@ -121,6 +118,17 @@
             font-weight: 600;
             color: var(--dark-text);
             font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chinese-hint {
+            font-size: 0.85rem;
+            color: var(--light-text);
+            font-weight: normal;
+            margin-left: 5px;
+            font-style: italic;
         }
         
         .form-group input, 
@@ -138,7 +146,7 @@
         .form-group textarea:focus {
             outline: none;
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
         
         .form-row {
@@ -202,7 +210,7 @@
             position: absolute;
             top: 5px;
             right: 5px;
-            background-color: rgba(255, 0, 0, 0.7);
+            background-color: rgba(231, 76, 60, 0.7);
             color: white;
             border: none;
             width: 25px;
@@ -239,7 +247,7 @@
         }
         
         .btn-primary:hover {
-            background-color: #333;
+            background-color: #1a252f;
             transform: translateY(-3px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
@@ -251,9 +259,9 @@
         }
         
         .btn-secondary:hover {
-            background-color: #0052a3;
+            background-color: #2980b9;
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 102, 204, 0.2);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.2);
         }
         
         /* Product List Section */
@@ -397,7 +405,7 @@
         
         .delete-btn {
             background-color: #ffe8e8;
-            color: #ff6b6b;
+            color: #e74c3c;
         }
         
         .delete-btn:hover {
@@ -436,7 +444,7 @@
         .stat-1 .stat-icon { background-color: var(--primary-color); }
         .stat-2 .stat-icon { background-color: var(--secondary-color); }
         .stat-3 .stat-icon { background-color: var(--accent-color); }
-        .stat-4 .stat-icon { background-color: #9c27b0; }
+        .stat-4 .stat-icon { background-color: #9b59b6; }
         
         .stat-content h3 {
             font-size: 2rem;
@@ -566,25 +574,45 @@
         }
         
         .notification.success {
-            background-color: #4caf50;
+            background-color: #27ae60;
         }
         
         .notification.error {
-            background-color: #f44336;
+            background-color: #e74c3c;
         }
         
         .notification.info {
             background-color: var(--accent-color);
+        }
+        
+        .language-switch {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        
+        .lang-btn {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.5);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="store-logo">TRENDY STREET</div>
-            <p class="store-tagline">Professional Product Management System for Urban Fashion Store</p>
-            <div class="admin-badge">
-                <i class="fas fa-user-shield"></i> ADMIN PANEL
+            <div class="language-switch">
+                <button class="lang-btn" id="lang-en">EN</button>
+                <button class="lang-btn" id="lang-zh">中文</button>
+            </div>
+            <div class="store-logo">COZY LUXE VAULT</div>
+            <p class="store-tagline">Premium Product Management System for Luxury Fashion Store</p>
+            <div class="language-badge">
+                <i class="fas fa-language"></i> EN/中文 Mode
             </div>
         </header>
         
@@ -604,7 +632,7 @@
                     <i class="fas fa-tags"></i>
                 </div>
                 <div class="stat-content">
-                    <h3>7</h3>
+                    <h3>8</h3>
                     <p>Categories</p>
                 </div>
             </div>
@@ -632,55 +660,77 @@
         
         <div class="main-content">
             <div class="upload-section">
-                <h2 class="section-title">Upload New Product</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-upload"></i> Upload New Product
+                    <span class="chinese-hint">(上传新产品)</span>
+                </h2>
                 
                 <form class="upload-form" id="product-form">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="product-name"><i class="fas fa-tag"></i> Product Name *</label>
-                            <input type="text" id="product-name" placeholder="e.g., Marimekko Cotton Socks" required>
+                            <label for="product-name">
+                                <i class="fas fa-tag"></i> Product Name *
+                                <span class="chinese-hint">(产品名称)</span>
+                            </label>
+                            <input type="text" id="product-name" placeholder="e.g., Luxury Cashmere Scarf" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="product-category"><i class="fas fa-list"></i> Category *</label>
+                            <label for="product-category">
+                                <i class="fas fa-list"></i> Category *
+                                <span class="chinese-hint">(产品分类)</span>
+                            </label>
                             <select id="product-category" required>
                                 <option value="">Select Category</option>
                                 <option value="Hats">Caps & Hats</option>
-                                <option value="Scarves">Scarves</option>
-                                <option value="Bags">Bags & Crossbody</option>
-                                <option value="Socks">Socks</option>
-                                <option value="Sneakers">Sneakers</option>
-                                <option value="Accessories">Accessories</option>
-                                <option value="Apparel">Apparel</option>
-                                <option value="Other">Other</option>
+                                <option value="Scarves">Scarves & Shawls</option>
+                                <option value="Bags">Handbags & Purses</option>
+                                <option value="Socks">Luxury Socks</option>
+                                <option value="Shoes">Designer Shoes</option>
+                                <option value="Accessories">Fashion Accessories</option>
+                                <option value="Apparel">Premium Apparel</option>
+                                <option value="Jewelry">Fine Jewelry</option>
                             </select>
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="product-price"><i class="fas fa-dollar-sign"></i> Price (USDT) *</label>
-                            <input type="number" id="product-price" step="0.01" min="0" placeholder="e.g., 8.00" required>
+                            <label for="product-price">
+                                <i class="fas fa-dollar-sign"></i> Price (USDT) *
+                                <span class="chinese-hint">(价格)</span>
+                            </label>
+                            <input type="number" id="product-price" step="0.01" min="0" placeholder="e.g., 49.99" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="product-sku"><i class="fas fa-barcode"></i> SKU / Product Code</label>
-                            <input type="text" id="product-sku" placeholder="e.g., TS-SOCKS-001">
+                            <label for="product-sku">
+                                <i class="fas fa-barcode"></i> SKU / Product Code
+                                <span class="chinese-hint">(产品编码)</span>
+                            </label>
+                            <input type="text" id="product-sku" placeholder="e.g., CLV-SCARF-001">
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="product-description"><i class="fas fa-align-left"></i> Description *</label>
-                        <textarea id="product-description" rows="4" placeholder="Describe your product features, materials, sizing, etc." required></textarea>
+                        <label for="product-description">
+                            <i class="fas fa-align-left"></i> Description *
+                            <span class="chinese-hint">(产品描述)</span>
+                        </label>
+                        <textarea id="product-description" rows="4" placeholder="Describe your product features, materials, sizing, etc. 描述产品特性、材质、尺寸等信息" required></textarea>
                     </div>
                     
                     <div class="form-group">
-                        <label><i class="fas fa-images"></i> Product Images *</label>
+                        <label>
+                            <i class="fas fa-images"></i> Product Images *
+                            <span class="chinese-hint">(产品图片)</span>
+                        </label>
                         <div class="image-upload-area" id="image-upload-area">
                             <i class="fas fa-cloud-upload-alt"></i>
                             <p><strong>Click to upload or drag and drop</strong></p>
+                            <p><strong>点击上传或拖放文件</strong></p>
                             <p>PNG, JPG, WEBP up to 5MB each</p>
-                            <p>You can upload multiple images</p>
+                            <p>支持PNG、JPG、WEBP格式，最大5MB</p>
                             <input type="file" id="image-input" multiple accept="image/*" style="display: none;">
                         </div>
                         
@@ -691,27 +741,38 @@
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="product-size"><i class="fas fa-ruler"></i> Size / Dimensions</label>
-                            <input type="text" id="product-size" placeholder="e.g., 36-42, One Size, M, etc.">
+                            <label for="product-size">
+                                <i class="fas fa-ruler"></i> Size / Dimensions
+                                <span class="chinese-hint">(尺寸)</span>
+                            </label>
+                            <input type="text" id="product-size" placeholder="e.g., One Size, M, 36-42, etc.">
                         </div>
                         
                         <div class="form-group">
-                            <label for="product-color"><i class="fas fa-palette"></i> Color / Variants</label>
-                            <input type="text" id="product-color" placeholder="e.g., Black, Red, Blue, Multicolor">
+                            <label for="product-color">
+                                <i class="fas fa-palette"></i> Color / Variants
+                                <span class="chinese-hint">(颜色/款式)</span>
+                            </label>
+                            <input type="text" id="product-color" placeholder="e.g., Black, Ivory, Navy Blue">
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="product-tags"><i class="fas fa-tags"></i> Tags (comma separated)</label>
-                        <input type="text" id="product-tags" placeholder="e.g., cotton, summer, fashion, streetwear">
+                        <label for="product-tags">
+                            <i class="fas fa-tags"></i> Tags (comma separated)
+                            <span class="chinese-hint">(标签，用逗号分隔)</span>
+                        </label>
+                        <input type="text" id="product-tags" placeholder="e.g., luxury, cashmere, winter, fashion">
                     </div>
                     
                     <div class="upload-buttons">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-upload"></i> Upload Product
+                            <span class="chinese-hint">(上传产品)</span>
                         </button>
                         <button type="button" class="btn btn-secondary" id="clear-form">
                             <i class="fas fa-eraser"></i> Clear Form
+                            <span class="chinese-hint">(清空表单)</span>
                         </button>
                     </div>
                 </form>
@@ -719,28 +780,31 @@
             
             <div class="products-section">
                 <div class="products-header">
-                    <h2 class="section-title">Product Inventory</h2>
+                    <h2 class="section-title">
+                        <i class="fas fa-boxes"></i> Product Inventory
+                        <span class="chinese-hint">(产品库存)</span>
+                    </h2>
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="product-search" placeholder="Search products...">
+                        <input type="text" id="product-search" placeholder="Search products... 搜索产品">
                     </div>
                 </div>
                 
                 <div class="products-grid" id="products-grid">
-                    <!-- Product cards will be dynamically added here -->
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: #666;">
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: #7f8c8d;">
                         <i class="fas fa-box-open" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;"></i>
                         <h3>No products yet</h3>
-                        <p>Upload your first product to get started!</p>
+                        <p>Upload your first product to get started! 上传第一个产品开始使用</p>
                     </div>
                 </div>
             </div>
         </div>
         
         <footer>
-            <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 10px;">TRENDY STREET PRODUCT MANAGEMENT</p>
-            <p style="margin-bottom: 15px;">Professional system for managing urban fashion products. All prices in USDT.</p>
-            <p>© 2023 Trendy Street | <span id="current-date"></span> | Store Dashboard</p>
+            <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 10px;">COZY LUXE VAULT PRODUCT MANAGEMENT</p>
+            <p style="margin-bottom: 15px;">Premium system for managing luxury fashion products. All prices in USDT.</p>
+            <p style="margin-bottom: 10px;">高级奢侈品管理系统。所有价格以USDT计价。</p>
+            <p>© 2023 Cozy Luxe Vault | <span id="current-date"></span> | Store Dashboard</p>
         </footer>
     </div>
     
@@ -760,27 +824,27 @@
                 <div style="flex: 2; min-width: 300px;">
                     <div style="margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <h3 id="modal-product-price" style="font-size: 2rem; color: #ff6b6b;">0 USDT</h3>
-                            <span id="modal-product-category" style="background-color: #0066cc; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">Category</span>
+                            <h3 id="modal-product-price" style="font-size: 2rem; color: #e74c3c;">0 USDT</h3>
+                            <span id="modal-product-category" style="background-color: #3498db; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">Category</span>
                         </div>
                         
-                        <p id="modal-product-description" style="color: #666; line-height: 1.6; margin-bottom: 20px;">Product description will appear here.</p>
+                        <p id="modal-product-description" style="color: #7f8c8d; line-height: 1.6; margin-bottom: 20px;">Product description will appear here.</p>
                         
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px;">
                             <div>
-                                <p style="font-weight: 600; color: #1d1d1f;">SKU:</p>
+                                <p style="font-weight: 600; color: #2c3e50;">SKU:</p>
                                 <p id="modal-product-sku">-</p>
                             </div>
                             <div>
-                                <p style="font-weight: 600; color: #1d1d1f;">Size:</p>
+                                <p style="font-weight: 600; color: #2c3e50;">Size:</p>
                                 <p id="modal-product-size">-</p>
                             </div>
                             <div>
-                                <p style="font-weight: 600; color: #1d1d1f;">Color:</p>
+                                <p style="font-weight: 600; color: #2c3e50;">Color:</p>
                                 <p id="modal-product-color">-</p>
                             </div>
                             <div>
-                                <p style="font-weight: 600; color: #1d1d1f;">Tags:</p>
+                                <p style="font-weight: 600; color: #2c3e50;">Tags:</p>
                                 <p id="modal-product-tags">-</p>
                             </div>
                         </div>
@@ -802,7 +866,7 @@
     <!-- Notification -->
     <div class="notification" id="notification">
         <i class="fas fa-check-circle"></i>
-        <span id="notification-text">Product uploaded successfully!</span>
+        <span id="notification-text">Product uploaded successfully! 产品上传成功！</span>
     </div>
 
     <script>
@@ -812,6 +876,15 @@
             year: 'numeric', 
             month: 'long', 
             day: 'numeric' 
+        });
+        
+        // Language switching
+        document.getElementById('lang-en').addEventListener('click', function() {
+            showNotification('Switched to English mode', 'info');
+        });
+        
+        document.getElementById('lang-zh').addEventListener('click', function() {
+            showNotification('切换到中文模式', 'info');
         });
         
         // Product data storage
@@ -838,12 +911,12 @@
             const files = Array.from(e.target.files);
             files.forEach(file => {
                 if (!file.type.startsWith('image/')) {
-                    showNotification('Please upload only image files', 'error');
+                    showNotification('Please upload only image files / 请只上传图片文件', 'error');
                     return;
                 }
                 
                 if (file.size > 5 * 1024 * 1024) {
-                    showNotification('Image size should be less than 5MB', 'error');
+                    showNotification('Image size should be less than 5MB / 图片大小应小于5MB', 'error');
                     return;
                 }
                 
@@ -861,7 +934,7 @@
         // Drag and drop functionality
         imageUploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
-            imageUploadArea.style.borderColor = '#0066cc';
+            imageUploadArea.style.borderColor = '#3498db';
             imageUploadArea.style.backgroundColor = '#f0f7ff';
         });
         
@@ -878,12 +951,12 @@
             const files = Array.from(e.dataTransfer.files);
             files.forEach(file => {
                 if (!file.type.startsWith('image/')) {
-                    showNotification('Please upload only image files', 'error');
+                    showNotification('Please upload only image files / 请只上传图片文件', 'error');
                     return;
                 }
                 
                 if (file.size > 5 * 1024 * 1024) {
-                    showNotification('Image size should be less than 5MB', 'error');
+                    showNotification('Image size should be less than 5MB / 图片大小应小于5MB', 'error');
                     return;
                 }
                 
@@ -939,17 +1012,17 @@
             
             // Validate required fields
             if (!name || !category || !price || !description) {
-                showNotification('Please fill in all required fields', 'error');
+                showNotification('Please fill in all required fields / 请填写所有必填字段', 'error');
                 return;
             }
             
             if (images.length === 0) {
-                showNotification('Please upload at least one product image', 'error');
+                showNotification('Please upload at least one product image / 请上传至少一张产品图片', 'error');
                 return;
             }
             
             if (isNaN(price) || price <= 0) {
-                showNotification('Please enter a valid price', 'error');
+                showNotification('Please enter a valid price / 请输入有效的价格', 'error');
                 return;
             }
             
@@ -960,7 +1033,7 @@
                 category,
                 price,
                 description,
-                sku: sku || `TS-${category.toUpperCase().substring(0, 3)}-${String(products.length + 1).padStart(3, '0')}`,
+                sku: sku || `CLV-${category.toUpperCase().substring(0, 3)}-${String(products.length + 1).padStart(3, '0')}`,
                 size: size || 'One Size',
                 color: color || 'Various',
                 tags: tags || category.toLowerCase(),
@@ -979,7 +1052,7 @@
             clearForm();
             
             // Show success notification
-            showNotification(`"${name}" added to inventory successfully!`, 'success');
+            showNotification(`"${name}" added to inventory successfully! / "${name}" 已成功添加到库存！`, 'success');
         });
         
         // Clear form button
@@ -1004,10 +1077,11 @@
             
             if (filteredProducts.length === 0) {
                 productsGrid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: #666;">
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: #7f8c8d;">
                         <i class="fas fa-box-open" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;"></i>
                         <h3>No products found</h3>
                         <p>Try a different search or upload a new product</p>
+                        <p>尝试其他搜索或上传新产品</p>
                     </div>
                 `;
                 return;
@@ -1094,7 +1168,7 @@
             
             // Set up modal buttons
             document.getElementById('modal-edit-btn').onclick = () => {
-                showNotification('Edit functionality will be added in the next update', 'info');
+                showNotification('Edit functionality will be added in the next update / 编辑功能将在下次更新中添加', 'info');
                 productModal.style.display = 'none';
             };
             
@@ -1109,14 +1183,15 @@
         
         // Delete product
         function deleteProduct(id) {
-            if (confirm('Are you sure you want to delete this product?')) {
+            const confirmMsg = 'Are you sure you want to delete this product? / 确定要删除这个产品吗？';
+            if (confirm(confirmMsg)) {
                 const productIndex = products.findIndex(p => p.id === id);
                 if (productIndex !== -1) {
                     const productName = products[productIndex].name;
                     products.splice(productIndex, 1);
                     updateProductDisplay();
                     updateStats();
-                    showNotification(`"${productName}" has been deleted`, 'success');
+                    showNotification(`"${productName}" has been deleted / "${productName}" 已删除`, 'success');
                 }
             }
         }
@@ -1159,8 +1234,49 @@
             }
         });
         
-        // Initialize stats
+        // Add sample products for demonstration
+        function addSampleProducts() {
+            const sampleProducts = [
+                {
+                    name: "Luxury Cashmere Scarf",
+                    category: "Scarves",
+                    price: 89.99,
+                    description: "100% pure cashmere scarf, soft and warm, perfect for winter fashion.",
+                    sku: "CLV-SCARF-001",
+                    size: "One Size",
+                    color: "Ivory, Navy Blue",
+                    tags: "cashmere, winter, luxury, fashion",
+                    images: []
+                },
+                {
+                    名称: “设计师真皮手袋”,
+                    category: "Bags",
+                    price: 249.99,
+                    描述: “采用手工制作的真皮手袋，搭配金色五金配件，设计优雅，适合日常使用。”,
+                    货号: “CLV-BAG-001”,
+                    尺寸: “中号”,
+                    颜色: “黑色、棕色”,
+                    标签: “皮革、手袋、设计师、奢侈品”,
+                    images: []
+                }
+            ];
+            
+            sampleProducts.forEach((product, index) => {
+                const newProduct = {
+                    id: index + 1,
+                    ...product,
+                    dateAdded: new Date().toISOString()
+                };
+                products.push(newProduct);
+            });
+            
+            updateProductDisplay();
+            updateStats();
+        }
+        
+        // 初始化统计数据并添加示例产品
         updateStats();
+        addSampleProducts();
     </script>
 </body>
 </html>
