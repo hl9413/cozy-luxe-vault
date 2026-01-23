@@ -25,3 +25,6 @@ dist-ssr
 
 .vercel
 .env*.local
+
+# Ignore product images stored in repo
+/odd-shape-4846/public/images/
