@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Category</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+    }
+
+    .product-card p {
+      margin: 5px 0;
+    }
+
+    button {
+      background-color: #0070f3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #005bb5;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #0070f3;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Category: <span id="categoryName"></span></h1>
+  <div class="product-list" id="productList"></div>
+
+  <a href="/cart.html">Go to Cart</a>
+
+  <script>
+    function getUserId() {
+      let uid = localStorage.getItem('user_id')
+      if (!uid) {
+        uid = crypto.randomUUID()
+        localStorage.setItem('user_id', uid)
+      }
+      return uid
+    }
+
+    const productListEl = document.getElementById('productList')
+    const categoryNameEl = document.getElementById('categoryName')
+    const params = new URLSearchParams(window.location.search)
+    const category = params.get('category') || 'All'
+    categoryNameEl.textContent = category
+
+    fetch(`/api/products?category=${encodeURIComponent(category)}`)
+      .then(res => res.json())
+      .then(products => {
+        products.forEach(p => {
+          const card = document.createElement('div')
+          card.className = 'product-card'
+          card.innerHTML = `
+            <p><strong>${p.name}</strong></p>
+            <p>Price: $${p.price}</p>
+            <a href="/product.html?id=${p.id}">View Details</a>
+            <button onclick="addToCart(${p.id}, '${p.name}', ${p.price})">Add to Cart</button>
+          `
+          productListEl.appendChild(card)
+        })
+      })
+
+    function addToCart(id, name, price) {
+      let cart = JSON.parse(localStorage.getItem('cart') || '[]')
+      const index = cart.findIndex(i => i.id === id.toString())
+      if (index > -1) {
+        cart[index].quantity += 1
+      } else {
+        cart.push({ id: id.toString(), name, price, quantity: 1 })
+      }
+      localStorage.setItem('cart', JSON.stringify(cart))
+      alert('Product added to cart!')
+    }
+  </script>
+</body>
+</html>
+

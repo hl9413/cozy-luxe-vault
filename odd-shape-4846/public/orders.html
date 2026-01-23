@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>璁㈠崟鍒楄〃</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { font-size: 2rem; margin-bottom: 20px; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 10px; border-bottom: 1px solid #ccc; }
+  </style>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <h1>璁㈠崟鍒楄〃</h1>
+  <ul id="ordersList"></ul>
+
+  <script>
+    const tg = window.Telegram?.WebApp
+
+    async function fetchAdminOrders() {
+      if (!tg) {
+        alert('璇峰湪 Telegram Mini App 涓墦寮€')
+        return
+      }
+
+      const res = await fetch('/api/admin/orders', {
+        headers: {
+          'X-TELEGRAM-INITDATA': tg.initData
+        }
+      })
+
+      if (!res.ok) {
+        alert('浣犳病鏈夋潈闄愯闂悗鍙?)
+        return
+      }
+
+      const orders = await res.json()
+      const list = document.getElementById('ordersList')
+      list.innerHTML = ''
+      orders.forEach(o => {
+        const li = document.createElement('li')
+        li.textContent = `璁㈠崟ID: ${o.id}, 鐢ㄦ埛: ${o.user_id}, 鎬婚: $${o.total_usd}, 鐘舵€? ${o.status}`
+        list.appendChild(li)
+      })
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchAdminOrders)
+  </script>
+</body>
+</html>
+

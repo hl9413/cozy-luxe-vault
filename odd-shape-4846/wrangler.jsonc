@@ -1,0 +1,17 @@
+{
+  "name": "odd-shape-4846",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-12-01",
+
+  "assets": {
+    "directory": "./public"
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "shop-db",
+      "database_id": "cb65f5ae-f325-4866-9889-61821271d908"
+    }
+  ]
+}

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Product</title>
+<style>
+  :root{
+    --bg:#fbf8f6; --muted:#7a6e6a; --card:#fff; --accent:#f7c6d2;
+    --radius:10px; --shadow:0 12px 30px rgba(14,20,20,0.06);
+  }
+  html,body{height:100%}
+  body{margin:0;font-family:Inter,system-ui, -apple-system, "Segoe UI", Roboto, Arial;background:var(--bg);color:#111;padding:28px}
+  .container{max-width:980px;margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start}
+  .gallery{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+  .main-img{width:100%;height:540px;object-fit:contain;background:#fff;border-radius:8px;display:block;cursor:pointer}
+  .thumbs{display:flex;gap:10px;margin-top:12px}
+  .thumbs img{width:74px;height:74px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:transform .18s, border-color .18s}
+  .thumbs img.active{border-color:var(--accent);transform:scale(1.02)}
+  .info{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  .title{font-size:20px;font-weight:700;margin:0 0 8px}
+  .desc{color:var(--muted);margin-bottom:12px}
+  .price{font-size:18px;font-weight:800;margin-bottom:12px}
+  .actions{display:flex;gap:10px;align-items:center}
+  .qty{width:64px;padding:8px;border:1px solid #eee;border-radius:8px}
+  .btn{background:#111;color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+
+  /* Lightbox */
+  .lb-overlay{position:fixed;inset:0;background:rgba(10,10,10,0.85);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
+  .lb-overlay.open{display:flex}
+  .lb-inner{max-width:1100px;max-height:90vh;width:100%;display:flex;flex-direction:column;gap:12px;align-items:center}
+  .lb-img{max-width:100%;max-height:78vh;object-fit:contain;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+  .lb-controls{width:100%;display:flex;justify-content:space-between;align-items:center}
+  .lb-thumbs{display:flex;gap:8px;overflow:auto;padding:6px}
+  .lb-thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent}
+  .lb-thumbs img.active{border-color:var(--accent)}
+  .lb-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
+  .lb-close{position:absolute;top:18px;right:20px;background:transparent;border:none;color:#fff;font-size:22px;cursor:pointer}
+
+  @media (max-width:880px){
+    .container{grid-template-columns:1fr; padding-bottom:40px}
+    .main-img{height:420px}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div>
+      <div class="gallery">
+        <img id="mainImg" class="main-img" src="https://placehold.co/600x600" alt="product image" />
+        <div id="thumbs" class="thumbs" aria-label="thumbnails"></div>
+        <div style="margin-top:10px;color:var(--muted);font-size:13px">Click the image to view larger photos</div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="info">
+        <div id="title" class="title">Loading...</div>
+        <div id="desc" class="desc"></div>
+        <div id="price" class="price"></div>
+        <div class="actions">
+          <input id="qty" class="qty" type="number" min="1" value="1" />
+          <button id="addBtn" class="btn">Add to cart</button>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:var(--muted)">
+          After adding, open <a href="/cart">Cart</a> to review items.
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Lightbox markup -->
+  <div id="lb" class="lb-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <button id="lbClose" class="lb-close" aria-label="Close">✕</button>
+    <div class="lb-inner" role="document">
+      <img id="lbImg" class="lb-img" src="" alt="Large product image" />
+      <div class="lb-controls" style="width:100%">
+        <button id="prevBtn" class="lb-btn" aria-label="Previous image">◀</button>
+        <div id="lbThumbs" class="lb-thumbs" role="list"></div>
+        <button id="nextBtn" class="lb-btn" aria-label="Next image">▶</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+function queryParam(name){
+  const u = new URL(location.href);
+  return u.searchParams.get(name);
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+async function loadProduct(){
+  const id = Number(queryParam('id'));
+  if(!id){ document.body.innerHTML = '<p>Invalid product id.</p>'; return; }
+  try{
+    const res = await fetch('/api/public/products');
+    const data = await res.json();
+    const products = data.value || data;
+    const p = products.find(x => Number(x.id) === id);
+    if(!p){ document.body.innerHTML = '<p>Product not found.</p>'; return; }
+
+    // Fill info
+    document.getElementById('title').textContent = p.title_en || '';
+    document.getElementById('desc').textContent = p.description_en || '';
+    document.getElementById('price').textContent = '$' + Number(p.price_usd || 0).toFixed(2);
+
+    // images
+    const images = (p.images && p.images.length) ? p.images : ['https://placehold.co/600x600'];
+    const main = document.getElementById('mainImg');
+    main.src = images[0];
+
+    const thumbs = document.getElementById('thumbs');
+    thumbs.innerHTML = images.map((img, i) => `<img data-idx="${i}" data-src="${esc(img)}" src="${esc(img)}" alt="thumb-${i}" ${i===0? 'class="active"':''}>`).join('');
+
+    // thumb click to change main
+    thumbs.querySelectorAll('img').forEach(imgEl=>{
+      imgEl.addEventListener('click', (e)=>{
+        const idx = Number(imgEl.getAttribute('data-idx')||0);
+        setMainIndex(idx);
+      });
+    });
+
+    // click main to open lightbox
+    main.addEventListener('click', ()=> openLightbox(currentIndex) );
+
+    // lightbox setup
+    setupLightbox(images);
+
+    // add to cart
+    document.getElementById('addBtn').addEventListener('click', ()=>{
+      const qty = Math.max(1, parseInt(document.getElementById('qty').value || '1', 10));
+      addToCart({ id: p.id, title: p.title_en, price: p.price_usd, image: images[0] }, qty);
+      document.getElementById('addBtn').textContent = 'Added';
+      setTimeout(()=> document.getElementById('addBtn').textContent = 'Add to cart', 1200);
+    });
+
+  }catch(e){
+    console.error(e);
+    document.body.innerHTML = '<p>Error loading product.</p>';
+  }
+}
+
+/* Cart (localStorage) */
+function addToCart(product, qty){
+  const key = 'cart_v1';
+  let cart = [];
+  try{ cart = JSON.parse(localStorage.getItem(key) || '[]'); }catch(e){ cart = []; }
+  const existing = cart.find(i => Number(i.id) === Number(product.id));
+  if(existing){
+    existing.qty = Number(existing.qty || 0) + Number(qty);
+  } else {
+    cart.push({ id: product.id, title: product.title, price: product.price, image: product.image, qty: Number(qty) });
+  }
+  localStorage.setItem(key, JSON.stringify(cart));
+}
+
+/* Lightbox logic */
+let lbImages = [];
+let currentIndex = 0;
+
+function setupLightbox(images){
+  lbImages = images.slice();
+  const lbThumbs = document.getElementById('lbThumbs');
+  lbThumbs.innerHTML = lbImages.map((img,i)=>`<img data-idx="${i}" src="${esc(img)}" alt="lb-thumb-${i}" ${i===0? 'class="active"':''}>`).join('');
+
+  // thumbnail click inside lightbox
+  lbThumbs.querySelectorAll('img').forEach(el=>{
+    el.addEventListener('click', ()=> {
+      const idx = Number(el.getAttribute('data-idx')||0);
+      setLightboxIndex(idx);
+    });
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', ()=> setLightboxIndex((currentIndex-1+lbImages.length)%lbImages.length));
+  document.getElementById('nextBtn').addEventListener('click', ()=> setLightboxIndex((currentIndex+1)%lbImages.length));
+  document.getElementById('lbClose').addEventListener('click', closeLightbox);
+
+  // overlay click to close when clicking backdrop
+  document.getElementById('lb').addEventListener('click', (e)=>{
+    if(e.target === e.currentTarget) closeLightbox();
+  });
+
+  // keyboard
+  window.addEventListener('keydown', (e)=>{
+    const lb = document.getElementById('lb');
+    if(!lb.classList.contains('open')) return;
+    if(e.key === 'Escape') closeLightbox();
+    if(e.key === 'ArrowLeft') setLightboxIndex((currentIndex-1+lbImages.length)%lbImages.length);
+    if(e.key === 'ArrowRight') setLightboxIndex((currentIndex+1)%lbImages.length);
+  });
+}
+
+function setMainIndex(idx){
+  currentIndex = idx;
+  const main = document.getElementById('mainImg');
+  main.src = lbImages[idx];
+  // update small thumbs active
+  document.querySelectorAll('#thumbs img').forEach(img => img.classList.toggle('active', Number(img.getAttribute('data-idx')||0) === idx));
+}
+
+function openLightbox(idx){
+  currentIndex = idx || 0;
+  setLightboxIndex(currentIndex);
+  const lb = document.getElementById('lb');
+  lb.classList.add('open');
+  lb.setAttribute('aria-hidden','false');
+  // trap focus (simple)
+  const close = document.getElementById('lbClose');
+  close.focus();
+}
+
+function closeLightbox(){
+  const lb = document.getElementById('lb');
+  lb.classList.remove('open');
+  lb.setAttribute('aria-hidden','true');
+}
+
+function setLightboxIndex(idx){
+  currentIndex = idx;
+  const lbImg = document.getElementById('lbImg');
+  lbImg.src = lbImages[idx];
+  // highlight thumb
+  document.querySelectorAll('#lbThumbs img').forEach(img => img.classList.toggle('active', Number(img.getAttribute('data-idx')||0) === idx));
+  // sync main image on page
+  const main = document.getElementById('mainImg');
+  if(main) main.src = lbImages[idx];
+  // sync small thumbs on page
+  document.querySelectorAll('#thumbs img').forEach(img => img.classList.toggle('active', Number(img.getAttribute('data-idx')||0) === idx));
+}
+
+/* initialize */
+loadProduct();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+﻿{
+  "url": "https://odd-shape-4846.1914653652.workers.dev",
+  "name": "Cozy Luxe Shop",
+  "short_name": "CozyLuxe",
+  "description": "Cozy Luxe Shop - TON Connect manifest",
+  "iconUrl": "https://odd-shape-4846.1914653652.workers.dev/icon.png",
+  "icons": [
+    { "src": "https://odd-shape-4846.1914653652.workers.dev/icons/192.png", "sizes": "192x192", "type": "image/png" }
+  ],
+  "start_url": "/",
+  "display": "standalone"
+}

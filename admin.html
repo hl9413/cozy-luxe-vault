@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>商家后台 - 上传商品图片</title>
+</head>
+<body>
+
+  <h2>商家后台（测试上传）</h2>
+
+  <input type="file" id="fileInput" />
+  <br /><br />
+  <button id="uploadBtn">上传图片</button>
+
+  <script>
+    const uploadBtn = document.getElementById("uploadBtn");
+    const fileInput = document.getElementById("fileInput");
+
+    uploadBtn.onclick = async () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("请先选择图片");
+        return;
+      }
+
+      try {
+        // 1️⃣ 请求后端，拿上传地址
+        const res = await fetch("/api/upload-url");
+        const data = await res.json();
+        console.log("uploadUrl =", data.uploadUrl);
+
+        console.log("后端返回：", data);
+
+        // 2️⃣ 用 PUT 上传图片（测试）
+        const uploadRes = await fetch(data.uploadUrl, {
+          method: "PUT",
+          body: file
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error("PUT 上传失败");
+        }
+
+        alert("🎉 图片 PUT 上传测试成功！");
+      } catch (err) {
+        console.error(err);
+        alert("❌ 上传失败：" + err.message);
+      }
+    };
+  </script>
+
+</body>
+</html>

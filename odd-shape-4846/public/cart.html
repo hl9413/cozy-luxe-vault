@@ -1,0 +1,88 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cart</title>
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:20px;background:#f7f7f8}
+  .wrap{max-width:900px;margin:0 auto}
+  .item{display:flex;gap:12px;background:#fff;border:1px solid #e6e6e9;padding:12px;border-radius:8px;margin-bottom:8px;align-items:center}
+  .item img{width:96px;height:96px;object-fit:cover;border-radius:6px}
+  .meta{flex:1}
+  .meta .title{font-weight:700}
+  .meta .price{font-weight:700;margin-top:8px}
+  .controls{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+  .qty{width:64px;padding:6px;border:1px solid #ddd;border-radius:6px}
+  button{background:#111;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Shopping Cart</h1>
+    <div id="list"></div>
+    <div style="margin-top:12px;font-weight:800">Total: $<span id="total">0.00</span></div>
+    <div style="margin-top:12px">
+      <button id="checkout">Proceed to Checkout (mock)</button>
+      <button id="clear" style="margin-left:8px;background:#777">Clear Cart</button>
+    </div>
+  </div>
+
+<script>
+const key = 'cart_v1';
+
+function getCart(){ try{ return JSON.parse(localStorage.getItem(key) || '[]'); }catch(e){ return []; } }
+function saveCart(c){ localStorage.setItem(key, JSON.stringify(c)); }
+
+function render(){
+  const cart = getCart();
+  const list = document.getElementById('list');
+  if(cart.length===0){ list.innerHTML = '<p>Your cart is empty.</p>'; document.getElementById('total').textContent = '0.00'; return; }
+  list.innerHTML = cart.map((it, idx) => `
+    <div class="item" data-idx="${idx}">
+      <img src="${it.image || 'https://placehold.co/96x96'}" alt="${it.title}">
+      <div class="meta">
+        <div class="title">${it.title}</div>
+        <div class="price">$${Number(it.price).toFixed(2)} x ${it.qty} = $${(Number(it.price)*Number(it.qty)).toFixed(2)}</div>
+      </div>
+      <div class="controls">
+        <input class="qty" type="number" min="1" value="${it.qty}">
+        <button class="remove">Remove</button>
+      </div>
+    </div>
+  `).join('');
+  // attach handlers
+  document.querySelectorAll('.item').forEach(el=>{
+    const idx = Number(el.dataset.idx);
+    const qtyInput = el.querySelector('.qty');
+    const removeBtn = el.querySelector('.remove');
+    qtyInput.addEventListener('change', ()=>{
+      const v = Math.max(1, Number(qtyInput.value||1));
+      const cart = getCart();
+      cart[idx].qty = v;
+      saveCart(cart);
+      render();
+    });
+    removeBtn.addEventListener('click', ()=>{
+      const cart = getCart();
+      cart.splice(idx,1);
+      saveCart(cart);
+      render();
+    });
+  });
+  const total = getCart().reduce((s,i)=> s + (Number(i.price)||0)*Number(i.qty||1), 0);
+  document.getElementById('total').textContent = total.toFixed(2);
+}
+
+document.getElementById('checkout').addEventListener('click', ()=>{
+  alert('This demo uses a mock checkout. Integrate real payment/checkout backend here.');
+});
+document.getElementById('clear').addEventListener('click', ()=>{
+  localStorage.removeItem(key);
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

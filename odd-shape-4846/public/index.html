@@ -1,0 +1,303 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cozy Luxe - Cart / Checkout</title>
+
+  <!-- Tailwind (dev-only) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- TonConnect UI (single source) -->
+  <script id="tonconnect-ui-cdn" src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js" defer></script>
+
+  <style>
+    body { background: linear-gradient(180deg,#fff0f5,#ffe4ec); font-family:"Helvetica Neue",sans-serif; }
+    .card { background:#fff;border-radius:1rem;padding:1rem;box-shadow:0 8px 20px rgba(255,182,193,0.25); }
+    .fixed-btn { position:fixed; right:1.25rem; bottom:1.25rem; z-index:60; }
+  </style>
+</head>
+<body class="p-6">
+
+  <header class="text-center mb-6">
+    <h1 class="text-3xl font-bold text-pink-600">Cozy Luxe</h1>
+    <p class="text-pink-400 mt-1">Cart / Checkout</p>
+  </header>
+
+  <main class="max-w-4xl mx-auto space-y-4">
+    <section class="card">
+      <h2 class="text-xl font-semibold mb-2">Your cart</h2>
+      <div id="cart-items" class="space-y-2 text-sm text-pink-700"></div>
+      <div id="cart-total" class="mt-3 font-bold text-lg"></div>
+    </section>
+
+    <section class="card">
+      <h3 class="font-medium">Payment</h3>
+      <p class="text-sm text-pink-500 mt-1">Pay with TON via TON Connect</p>
+      <div class="mt-3">
+        <button id="pay-btn" class="bg-pink-500 hover:bg-pink-400 text-white px-5 py-2 rounded-full">Pay with TON</button>
+      </div>
+      <div id="status" class="mt-3 text-sm text-gray-600"></div>
+    </section>
+  </main>
+
+  <div class="fixed-btn">
+    <button id="goto-cart-btn" class="bg-pink-500 hover:bg-pink-400 text-white px-6 py-3 rounded-full shadow-xl text-lg">Go to Cart</button>
+  </div>
+
+  <script>
+  (function(){
+    // ====== CONFIG ======
+    // IMPORTANT: Use your deployed workers HTTPS URL (not http/localhost) for manifest.
+    const MANIFEST_URL = 'https://odd-shape-4846.1914653652.workers.dev/tonconnect-manifest.json'; // <- update if different
+    const RECEIVER_ADDRESS = 'EQCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'; // <- replace with real address
+    const PAYMENT_TON_AMOUNT = 0.05;
+
+    // ====== STATE ======
+    let tonConnectUI = null;
+    let walletSession = null;
+
+    // wait helper
+    function waitFor(cond, timeout = 8000, interval = 100) {
+      return new Promise((resolve, reject) => {
+        const start = Date.now();
+        (function tick(){
+          try {
+            if (cond()) return resolve();
+          } catch(e){}
+          if (Date.now() - start > timeout) return reject(new Error('timeout'));
+          setTimeout(tick, interval);
+        })();
+      });
+    }
+
+    // ensure TonConnect UI script loaded and create single instance
+    async function ensureTonConnectUI() {
+      if (tonConnectUI) return tonConnectUI;
+
+      // wait for global to appear
+      try {
+        await waitFor(()=> window.TON_CONNECT_UI && typeof window.TON_CONNECT_UI.TonConnectUI === 'function', 10000, 100);
+      } catch (e) {
+        console.error('TonConnect UI global not available', e);
+        throw new Error('TonConnect UI not loaded');
+      }
+
+      // reuse global singleton if present to avoid multiple inits
+      if (window.__TON_CONNECT_UI_SINGLETON) {
+        tonConnectUI = window.__TON_CONNECT_UI_SINGLETON;
+        console.log('Reusing existing TonConnectUI singleton');
+        return tonConnectUI;
+      }
+
+      try {
+        tonConnectUI = new window.TON_CONNECT_UI.TonConnectUI({ manifestUrl: MANIFEST_URL });
+        // store on window to avoid double instantiation across hot reloads/devtools
+        window.__TON_CONNECT_UI_SINGLETON = tonConnectUI;
+        console.log('TonConnectUI instantiated', tonConnectUI);
+        return tonConnectUI;
+      } catch (err) {
+        console.error('Failed to instantiate TonConnectUI', err);
+        throw err;
+      }
+    }
+
+    // quick check if already connected (defensive)
+    function alreadyConnected() {
+      if (!tonConnectUI) return false;
+      // various SDK shapes: provider.connected, activeConnector, wallet, session
+      if (tonConnectUI.provider && (tonConnectUI.provider.connected || tonConnectUI.provider.isConnected)) return true;
+      if (tonConnectUI.activeConnector) return true;
+      if (walletSession) return true;
+      if (tonConnectUI.wallet) return true;
+      return false;
+    }
+
+    // open wallet selector modal (must be called on user gesture)
+    async function openWalletSelector() {
+      await ensureTonConnectUI();
+
+      // call openModal directly (this should show modal/QR)
+      if (typeof tonConnectUI.openModal === 'function') {
+        try {
+          // openModal must be triggered by user gesture to show QR / selector
+          await tonConnectUI.openModal();
+          console.log('openModal called');
+        } catch (err) {
+          // SDK sometimes throws if connection state is odd 鈥?keep going to try detect provider
+          console.warn('openModal threw', err && (err.message || err));
+        }
+      } else {
+        console.warn('openModal not available on TonConnectUI instance');
+      }
+
+      // attempt to connect programmatically only if not connected
+      if (!alreadyConnected() && typeof tonConnectUI.connect === 'function') {
+        try {
+          const session = await tonConnectUI.connect();
+          walletSession = session || walletSession;
+          console.log('tonConnectUI.connect() session', session);
+          return session;
+        } catch (err) {
+          // ignore "already connected" style errors
+          const msg = (err && err.message) || '';
+          if (msg.toLowerCase().includes('already connected') || msg.toLowerCase().includes('wallet connection called but wallet already connected')) {
+            console.warn('connect() reported already connected; ignoring');
+            return walletSession || tonConnectUI.provider || tonConnectUI.activeConnector;
+          }
+          console.warn('connect() failed', err);
+          // not fatal for the modal to appear; let caller handle failure
+          throw err;
+        }
+      }
+
+      // if connect() not present or already connected, try to detect provider
+      if (alreadyConnected()) {
+        return walletSession || tonConnectUI.provider || tonConnectUI.activeConnector || tonConnectUI.wallet;
+      }
+
+      // wait a short time for provider to appear after user opened modal
+      try {
+        await waitFor(()=> !!(tonConnectUI.provider || tonConnectUI.activeConnector || tonConnectUI.wallet), 10000, 200);
+        walletSession = tonConnectUI.provider || tonConnectUI.activeConnector || tonConnectUI.wallet;
+        console.log('Detected wallet session/provider', walletSession);
+        return walletSession;
+      } catch(e) {
+        console.warn('No provider detected after modal open', e);
+        throw new Error('No wallet connected');
+      }
+    }
+
+    // send payment 鈥?tries several provider shapes
+    async function sendTonPayment({ to, amountTON }) {
+      await ensureTonConnectUI();
+
+      // helper shapes
+      const valueNanoton = String(Math.round(Number(amountTON) * 1e9));
+      const txArr = [{ to, value: valueNanoton }];
+
+      // try TonConnectUI.sendTransaction
+      if (typeof tonConnectUI.sendTransaction === 'function') {
+        try {
+          return await tonConnectUI.sendTransaction({ to, value: String(amountTON), text: 'Purchase' });
+        } catch (e) {
+          console.warn('tonConnectUI.sendTransaction failed', e);
+        }
+      }
+
+      // try provider.request
+      const provider = tonConnectUI.provider || tonConnectUI.activeConnector || tonConnectUI.wallet;
+      if (provider && typeof provider.request === 'function') {
+        const candidates = [
+          { method: 'ton_sendTransaction', params: txArr },
+          { method: 'ton_requestTransactions', params: txArr },
+          { method: 'wallet_sendTransaction', params: txArr }
+        ];
+        for (const c of candidates) {
+          try {
+            console.log('Trying provider.request', c.method, c.params);
+            const r = await provider.request({ method: c.method, params: c.params });
+            return r;
+          } catch (err) {
+            console.warn('provider.request failed for', c.method, err && err.message);
+          }
+        }
+      }
+
+      // try connector.sendTransaction
+      const connector = tonConnectUI.activeConnector || tonConnectUI.connector;
+      if (connector && typeof connector.sendTransaction === 'function') {
+        try {
+          return await connector.sendTransaction({ to, value: String(amountTON) });
+        } catch (e) {
+          console.warn('connector.sendTransaction failed', e);
+        }
+      }
+
+      throw new Error('No compatible transaction API available');
+    }
+
+    // UI and cart helpers
+    function setStatus(msg, isError=false) {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.style.color = isError ? '#cc0000' : '#374151';
+      console.log('STATUS:', msg);
+    }
+    function loadCart() {
+      try { const raw = localStorage.getItem('cart'); return raw ? JSON.parse(raw) : []; } catch(e){return [];}
+    }
+    function renderCart(){
+      const items = loadCart();
+      const el = document.getElementById('cart-items'); el.innerHTML = '';
+      if (!items.length) { el.innerHTML = '<div class="text-sm text-pink-500">Cart is empty</div>'; document.getElementById('cart-total').textContent=''; return; }
+      let total = 0; items.forEach(it=>{ total += Number(it.price_usd||0); const row = document.createElement('div'); row.className='flex justify-between'; row.innerHTML = `<div>${it.title_en||'Product'}</div><div>$${(it.price_usd||0).toFixed(2)}</div>`; el.appendChild(row); });
+      document.getElementById('cart-total').textContent = 'Total: $' + total.toFixed(2);
+    }
+
+    // attach events (single-run)
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCart();
+      const gotoBtn = document.getElementById('goto-cart-btn');
+      const payBtn = document.getElementById('pay-btn');
+
+      // Go to Cart -> open wallet selector (must be user gesture)
+      gotoBtn.addEventListener('click', async (ev) => {
+        setStatus('Opening wallet selector...');
+        try {
+          // IMPORTANT: openModal must be called as direct result of user gesture (this click)
+          await openWalletSelector();
+          setStatus('Wallet selector opened (check modal/QR).');
+        } catch (err) {
+          console.error('openWalletSelector error', err);
+          setStatus('Failed to open wallet selector: ' + (err && err.message), true);
+        }
+      });
+
+      // Pay flow - ask for connect if needed, then send tx
+      payBtn.addEventListener('click', async (ev) => {
+        setStatus('Preparing payment...');
+        try {
+          await ensureTonConnectUI();
+
+          if (!alreadyConnected()) {
+            // open modal directly on user click
+            setStatus('Opening wallet for connection...');
+            try {
+              await openWalletSelector();
+            } catch (err) {
+              console.warn('openWalletSelector during pay failed', err);
+              // if user closed modal, abort
+              setStatus('No wallet connected', true);
+              return;
+            }
+          }
+
+          // Confirm and send
+          if (!confirm(`Send ${PAYMENT_TON_AMOUNT} TON to complete purchase?`)) {
+            setStatus('Payment cancelled');
+            return;
+          }
+
+          setStatus('Sending transaction via wallet...');
+          const res = await sendTonPayment({ to: RECEIVER_ADDRESS, amountTON: PAYMENT_TON_AMOUNT });
+          console.log('Transaction response:', res);
+          setStatus('Payment submitted. Clearing cart...');
+          localStorage.removeItem('cart');
+          renderCart();
+          alert('Payment submitted. Thank you!');
+        } catch (err) {
+          console.error('Payment error', err);
+          setStatus('Payment failed: ' + (err && err.message), true);
+        }
+      });
+    });
+
+    // expose for debugging
+    window.__COZY_TON = { ensureTonConnectUI, openWalletSelector, sendTonPayment };
+  })();
+  </script>
+</body>
+</html>
+
+

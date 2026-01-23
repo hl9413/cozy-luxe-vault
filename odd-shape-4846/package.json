@@ -1,0 +1,26 @@
+{
+	"name": "odd-shape-4846",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"test": "vitest",
+		"cf-typegen": "wrangler types"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "^0.8.19",
+		"typescript": "^5.5.2",
+		"vitest": "~3.2.0",
+		"wrangler": "^4.54.0"
+	},
+	"dependencies": {
+		"body-parser": "^2.2.2",
+		"dotenv": "^17.2.3",
+		"express": "^5.2.1",
+		"node-fetch": "^2.7.0",
+		"stripe": "^20.2.0",
+		"uuid": "^13.0.0"
+	}
+}

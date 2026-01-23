@@ -1,0 +1,12 @@
+@'
+name = "odd-shape-4846"
+main = "src/index.ts"
+compatibility_date = "2026-01-15"
+
+account_id = "0286f816dbffbf01dbbe56cbf8d7a381"
+workers_dev = true
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+'@ | Set-Content -Path .\wrangler.toml -Encoding utf8
